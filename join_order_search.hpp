@@ -12,6 +12,8 @@ class Solver {
     public:
 
     Solver(HyperGraph& g, int nNodes): graph(g), nNodes(nNodes) {}
+    std::bitset<N> nextBitset(const std::bitset<N>&, const std::bitset<N>&);
+    void printBitset(const std::bitset<N>& s, int n);
 
     bool solve();
 
@@ -30,7 +32,6 @@ class Solver {
     bool isSubset(const std::set<int>&, const std::bitset<N>&);
     bool emptyIntersection(const std::set<int>&, const std::bitset<N>&);
     std::bitset<N> computeBmin(const std::bitset<N>&);
-    std::bitset<N> nextBitset(const std::bitset<N>&, const std::bitset<N>&);
     bool containsEdge(const std::bitset<N>&, const std::bitset<N>&);
 };
 }

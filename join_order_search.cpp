@@ -3,7 +3,7 @@
 
 using namespace dphyp;
 
-template <int N> void printBitset(const std::bitset<N>& s, int n)
+template <int N> void Solver<N>::printBitset(const std::bitset<N>& s, int n)
 {
     std::cout << "{";
      for (int i=1;i<=n;i++)
@@ -134,19 +134,29 @@ template<int N> bool Solver<N>::solve()
 
     std::cout << "Enumerate csg:" << std::endl;
     std::cout << "S:";
-    printBitset<N>(S,graph.nEdges);
+    printBitset(S,graph.nEdges);
     std::cout << "X:";
-    printBitset<N>(X,graph.nEdges);
+    printBitset(X,graph.nEdges);
     std::cout << "N:";
-    printBitset<N>(Ns,graph.nEdges);
+    printBitset(Ns,graph.nEdges);
 
-    while((next = nextBitset(prev,Ns)) != Ns)
-    if (dpTable.contains(S | next ))
+    while(true)
+    {
+        next = nextBitset(prev,Ns);
+        if (dpTable.contains(S | next ))
             EmitCsg(S | next );
+        if (next == Ns)
+            break;
+    }
         
     prev.reset();
-    while((next = nextBitset(prev,Ns)) != Ns)
+    while(true)
+    {
+        next = nextBitset(prev,Ns);
         EnumerateCsgRec(S | next, X | Ns );
+        if (next==Ns)
+            break;
+    }
  }
 
  template <int N> void Solver<N>::EnumerateCmpRec(const std::bitset<N>& S1, const std::bitset<N>& S2, const std::bitset<N>& X)
@@ -155,15 +165,26 @@ template<int N> bool Solver<N>::solve()
 
     std::bitset<N> prev;
     std::bitset<N> next;
-    while((next = nextBitset(prev,Ns)) != Ns)        
+
+    while(true)
+    {
+        next = nextBitset(prev,Ns);        
         if (dpTable.contains(S2 | next))
             if (containsEdge(S1,S2|next))
                 EmitCsgCmp(S1,S2|next);
+        if (next==Ns)
+            break;
+    }
     std::bitset<N> X2 = X | Ns;
     Ns = neighbors(S2,X2);
     prev.reset();
-    while((next = nextBitset(prev,Ns)) != Ns)        
+    while(true)
+    {
+        next = nextBitset(prev,Ns);        
         EnumerateCmpRec(S1,S2|next,X2);
+        if (next==Ns)
+            break;
+    }
  }
 
 template <int N> void Solver<N>::EmitCsgCmp(const std::bitset<N>& S1, const std::bitset<N>& S2)
@@ -182,7 +203,7 @@ template <int N> void Solver<N>::EmitCsgCmp(const std::bitset<N>& S1, const std:
 
     dpTable[joined] = true;
     std::cout << "Emitting:";
-    printBitset<N> (joined,graph.nEdges);
+    printBitset(joined,graph.nEdges);
 }
 
 template <int N> std::bitset<N> Solver<N>::computeBmin(const std::bitset<N>& S)
@@ -227,7 +248,5 @@ template <int N> bool Solver<N>::containsEdge(const std::bitset<N>& S, const std
 
     return false;
 }
-
-
 
 template class dphyp::Solver<64>;

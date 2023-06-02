@@ -5,6 +5,28 @@
 
 using namespace dphyp;
 
+void test0()
+{
+    std::bitset<64> s;
+    s.set(2);
+    s.set(4);
+    s.set(7);
+    std::unordered_set<HyperEdge,HyperEdge::HashFunction> edges;
+    HyperGraph graph(edges);
+    Solver<64> solv = Solver<64>(graph,10);
+
+    std::bitset<64> prev;
+    std::bitset<64> next;
+
+    while(true)
+    {
+        next = solv.nextBitset(prev,s);
+        solv.printBitset(next,10);
+        if (next==s)
+            break;
+    }
+
+}
 // sample hypergraph from Figure 2 of DPHyp paper
 void test1()
 {
@@ -57,5 +79,5 @@ void test2()
 
 int main()
 {
-    test2();
+    test0();
 }
