@@ -1,5 +1,6 @@
 #include <set>
 #include <unordered_set>
+#include <iostream>
 #include "hyper_graph.hpp"
 #include "join_order_search.hpp"
 
@@ -15,12 +16,11 @@ void test0()
     HyperGraph graph(edges);
     Solver<64> solv = Solver<64>(graph,10);
 
-    std::bitset<64> prev;
     std::bitset<64> next;
 
     while(true)
     {
-        next = solv.nextBitset(prev,s);
+        next = solv.nextBitset(next,s);
         solv.printBitset(next,10);
         if (next==s)
             break;
@@ -79,5 +79,10 @@ void test2()
 
 int main()
 {
+    std::cout << "Test 0: " << std::endl;
     test0();
+
+    std::cout << "Test 2: " << std::endl;
+    test2();
+
 }

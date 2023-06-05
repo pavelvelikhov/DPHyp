@@ -225,7 +225,29 @@ template <int N> std::bitset<N> Solver<N>::nextBitset(const std::bitset<N>& prev
     if (prev==final)
         return final;
 
-    return std::bitset<N>((prev | ~final).to_ulong() + 1) & final;
+    std::bitset<N> res = prev;
+
+    bool carry = true;
+    for (int i=0; i<N; i++)
+    {
+        if (!carry)
+            break;
+
+        if (!final[i])
+            continue;
+
+        if (res[i]==1 && carry)
+            res.reset(i);
+        else if (res[i]==0 && carry)
+        {
+            res.set(i);
+            carry = false;
+        }
+    }
+
+    return res;
+
+    // return std::bitset<N>((prev | ~final).to_ulong() + 1) & final;
 }
 
 template <int N> bool Solver<N>::containsEdge(const std::bitset<N>& S, const std::bitset<N>& T)
