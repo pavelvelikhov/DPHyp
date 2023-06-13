@@ -68,11 +68,12 @@ void test2()
           HyperEdge(s0,s3),
           HyperEdge(s1,s4),
           HyperEdge(s2,s3),
+          HyperEdge(s2,s4),
           HyperEdge(s3,s4)
           };
 
     HyperGraph graph(edges);
-    Solver<64> s = Solver<64>(graph,6);
+    Solver<64> s = Solver<64>(graph,5);
     s.solve();
 }
 

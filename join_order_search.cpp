@@ -115,6 +115,9 @@ template<int N> bool Solver<N>::solve()
     std::bitset<N> Bmin = computeBmin(S);
     std::bitset<N> X = S | Bmin;
     std::bitset<N> Ns = neighbors(S, X);
+    if (Ns==std::bitset<N>())
+        return;
+
     for (int i=nNodes;i>0;i--)
         if (Ns[i])
         {
@@ -129,10 +132,13 @@ template<int N> bool Solver<N>::solve()
  template <int N> void Solver<N>::EnumerateCsgRec(const std::bitset<N>& S, const std::bitset<N>& X)
  {
     std::bitset<N> Ns = neighbors(S,X);
+    if (Ns == std::bitset<N>())
+        return;
+
     std::bitset<N> prev;
     std::bitset<N> next;
 
-    std::cout << "Enumerate csg:" << std::endl;
+    std::cout << "Enumerate csg rec:" << std::endl;
     std::cout << "S:";
     printBitset(S,graph.nEdges);
     std::cout << "X:";
@@ -147,6 +153,7 @@ template<int N> bool Solver<N>::solve()
             EmitCsg(S | next );
         if (next == Ns)
             break;
+        prev = next;
     }
         
     prev.reset();
@@ -156,15 +163,28 @@ template<int N> bool Solver<N>::solve()
         EnumerateCsgRec(S | next, X | Ns );
         if (next==Ns)
             break;
+        prev = next;
     }
  }
 
  template <int N> void Solver<N>::EnumerateCmpRec(const std::bitset<N>& S1, const std::bitset<N>& S2, const std::bitset<N>& X)
  {
     std::bitset<N> Ns = neighbors(S2,X);
+    if (Ns==std::bitset<N>())
+        return;
 
     std::bitset<N> prev;
     std::bitset<N> next;
+
+    std::cout << "Enumerate cmp rec:" << std::endl;
+    std::cout << "S1:";
+    printBitset(S1,graph.nEdges);
+    std::cout << "S2:";
+    printBitset(S2,graph.nEdges);
+    std::cout << "X:";
+    printBitset(X,graph.nEdges);
+    std::cout << "N:";
+    printBitset(Ns,graph.nEdges);
 
     while(true)
     {
@@ -174,6 +194,7 @@ template<int N> bool Solver<N>::solve()
                 EmitCsgCmp(S1,S2|next);
         if (next==Ns)
             break;
+        prev = next;
     }
     std::bitset<N> X2 = X | Ns;
     Ns = neighbors(S2,X2);
@@ -184,6 +205,7 @@ template<int N> bool Solver<N>::solve()
         EnumerateCmpRec(S1,S2|next,X2);
         if (next==Ns)
             break;
+        prev = next;
     }
  }
 
@@ -195,6 +217,17 @@ template <int N> void Solver<N>::EmitCsgCmp(const std::bitset<N>& S1, const std:
     // just fill in the dpTable
     std::bitset<N> joined = S1 | S2;
 
+    std::cout << "Emitting:";
+    printBitset(joined,graph.nEdges);
+
+    //for (auto k : dpTable )
+    //{
+    //    std::cout << "Hash:" << std::hash<std::bitset<N>>{}(k.first) << std::endl;
+    //    std::cout << "TABLE ENTRY:";
+    //    printBitset(k.first,graph.nEdges);
+    //    std::cout << std::endl;
+    //}
+
     if (dpTable.contains(joined))
     {
         std::cout << "Duplicate entry in dpTable" << std::endl;
@@ -202,8 +235,7 @@ template <int N> void Solver<N>::EmitCsgCmp(const std::bitset<N>& S1, const std:
     }
 
     dpTable[joined] = true;
-    std::cout << "Emitting:";
-    printBitset(joined,graph.nEdges);
+
 }
 
 template <int N> std::bitset<N> Solver<N>::computeBmin(const std::bitset<N>& S)
@@ -213,7 +245,7 @@ template <int N> std::bitset<N> Solver<N>::computeBmin(const std::bitset<N>& S)
     for (int i=1;i<=nNodes; i++)
         if (S[i])
         {
-            for (int j=1;j<i;j++)
+            for (int j=1;j<=i;j++)
                 res.set(j);
             break;
         }
